@@ -1,0 +1,6 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Com.KiddoPay.Payment.Service/bin
+/Com.KiddoPay.Payment.Service/obj
