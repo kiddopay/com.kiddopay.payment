@@ -4,3 +4,7 @@
 
 /Com.KiddoPay.Payment.Service/bin
 /Com.KiddoPay.Payment.Service/obj
+/Com.KiddoPay.Payment.Provider/bin/Debug/netcoreapp2.0
+/Com.KiddoPay.Payment.Provider/obj
+/Com.KiddoPay.Payment.Provider.XTest/bin/Debug/netcoreapp2.0
+/Com.KiddoPay.Payment.Provider.XTest/obj
