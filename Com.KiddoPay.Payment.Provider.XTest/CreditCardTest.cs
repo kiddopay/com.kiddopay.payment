@@ -1,17 +1,18 @@
 using Com.KiddoPay.Payment.Provider.Midtrans;
+using Com.KiddoPay.Payment.Provider.Midtrans.Payment.CreditCard;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.KiddoPay.Payment.Provider.XTest
 {
-    public class MidtransTest
+    public class CreditCardTest
     {
         [Fact]
-        public Task GetToken()
+        public async Task GetToken()
         {
             Client client = new Client();
-            return client.GetToken(new MidtransCreditCardObject())
+            await client.GetTokenAsync(new CreditCardObject())
                 .ContinueWith(resultTask =>
                 {
                     var result = resultTask.Result;
