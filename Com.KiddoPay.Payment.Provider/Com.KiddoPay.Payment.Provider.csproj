@@ -3,13 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="CreditCardObject.cs" />
-    <Compile Remove="IPaymentObject.cs" />
-    <Compile Remove="Midtrans\MidtransCreditCardObject.cs" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
@@ -19,6 +13,7 @@
     <Folder Include="Midtrans\Payment\OverTheCounter\" />
     <Folder Include="Midtrans\Payment\EWallet\" />
     <Folder Include="Midtrans\Payment\VirtualAccount\" />
+    <Folder Include="Faspay\" />
   </ItemGroup>
 
 </Project>

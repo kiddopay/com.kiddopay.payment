@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,16 +7,27 @@ namespace Com.KiddoPay.Payment.Provider.Midtrans.Payment.CreditCard
 {
     public class CreditCardObject : IPaymentObject
     {
-        public string card_number { get; set; }
-        public string card_ccv { get; set; }
-        public ushort card_exp_month { get; set; }
-        public uint card_exp_year { get; set; }
-        public string bank { get; set; }
-        public bool secure { get; set; }
-        public decimal gross_amount { get; set; }
-        public string installment_term { get; set; }
-        public string token_id { get; set; }
-        public string type { get; set; }
-        public bool point { get; set; }
+        [JsonProperty("card_number")]
+        public string CardNumber { get; set; }
+        [JsonProperty("card_ccv")]
+        public string CCV { get; set; }
+        [JsonProperty("card_exp_month")]
+        public ushort ExpiryMonth { get; set; }
+        [JsonProperty("card_exp_year")]
+        public uint ExpiryYear { get; set; }
+        [JsonProperty("bank")]
+        public string Bank { get; set; }
+        [JsonProperty("secure")]
+        public bool Secure { get; set; }
+        [JsonProperty("gross_amount")]
+        public decimal GrossAmount { get; set; }
+        [JsonProperty("installment_term")]
+        public string InstallmentTerm { get; set; }
+        [JsonProperty("token_id")]
+        public string Token { get; set; }
+        [JsonProperty("type")]
+        public string Type { get; set; }
+        [JsonProperty("point")]
+        public bool Point { get; set; }
     }
 }

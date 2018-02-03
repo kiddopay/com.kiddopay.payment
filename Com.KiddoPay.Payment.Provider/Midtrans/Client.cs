@@ -56,13 +56,13 @@ namespace Com.KiddoPay.Payment.Provider.Midtrans
                 }).Unwrap();
         }
 
-        public Task<ResponseObject> ChargeAsync(IPaymentObject paymentObject)
+        public Task<ResponseObject> ChargeAsync(ChargeObject chargeObject)
         {
             const string endpoint = "v2/charge";
             UriBuilder uriBuilder = new UriBuilder(BASE_URI);
             uriBuilder.Path = endpoint;
 
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(paymentObject), Encoding.UTF8, "application/json");
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(chargeObject), Encoding.UTF8, "application/json");
             return this.http.PostAsync(uriBuilder.Uri, content)
             .ContinueWith(responseTask =>
             {
