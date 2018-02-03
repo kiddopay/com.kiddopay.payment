@@ -1,4 +1,5 @@
 ﻿using Com.KiddoPay.Payment.Provider.Midtrans.Payment;
+using Com.KiddoPay.Payment.Provider.Midtrans.Payment.CreditCard;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,8 @@ namespace Com.KiddoPay.Payment.Provider.Midtrans
     public class Client
     {
         //https://api-docs.midtrans.com/#http-s-header
-        const string CLIENT_KEY = "SB-Mid-client-1AGVMRf91Kr-NXc0" + ":";
+        const string CLIENT_KEY = "SB-Mid-client-1AGVMRf91Kr-NXc0";
+        const string SERVER_KEY = "SB-Mid-server-qQfQ9XmYEQPqlJermGyIRftb";
         const string BASE_URI = "https://api.sandbox.midtrans.com/";
         HttpClient http;
 
@@ -21,28 +23,26 @@ namespace Com.KiddoPay.Payment.Provider.Midtrans
             this.http = new HttpClient();
             http.DefaultRequestHeaders.Accept.Clear();
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(CLIENT_KEY)));
-
-            //http.DefaultRequestHeaders.Add("Content-Type", "application/json");
-            //http.DefaultRequestHeaders.Add("Accept", "application/json");
-            //http.DefaultRequestHeaders.Add("Authorization", string.Format("Basic {0}", Convert.ToBase64String(Encoding.UTF8.GetBytes(CLIENT_KEY))));
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(SERVER_KEY + ":")));
         }
-
-        public Task<ResponseObject> GetTokenAsync(IPaymentObject paymentObject)
+        private string GetCCQuery(CreditCardObject creditCard)
+        {
+            List<string> info = new List<string>();
+            info.Add(string.Format("card_number={0}", creditCard.CardNumber));
+            info.Add(string.Format("card_cvv={0}", creditCard.CCV));
+            info.Add(string.Format("card_exp_month={0}", creditCard.ExpiryMonth));
+            info.Add(string.Format("card_exp_year={0}", creditCard.ExpiryYear));
+            info.Add(string.Format("client_key={0}", CLIENT_KEY));
+            info.Add(string.Format("secure={0}", creditCard.Secure));
+            info.Add(string.Format("gross_amount={0}", creditCard.GrossAmount));
+            return string.Join('&', info);
+        }
+        public Task<TokenResponseObject> GetTokenAsync(CreditCardObject creditCard)
         {
             const string endpoint = "v2/token";
             UriBuilder uriBuilder = new UriBuilder(BASE_URI);
             uriBuilder.Path = endpoint;
-
-            uriBuilder.Query = string.Join('&', new string[] {
-                "card_number=4111 1111 1111 1111",
-                "card_cvv=123",
-                "card_exp_month=12",
-                "card_exp_year=2018",
-                "client_key=SB-Mid-client-1AGVMRf91Kr-NXc0",
-                "secure=true",
-                "gross_amount=50000"
-            });
+            uriBuilder.Query = GetCCQuery(creditCard);
 
             return this.http.GetAsync(uriBuilder.Uri)
                 .ContinueWith(responseTask =>
@@ -51,18 +51,19 @@ namespace Com.KiddoPay.Payment.Provider.Midtrans
                     return response.Content.ReadAsStringAsync().ContinueWith(readTask =>
                     {
                         var json = readTask.Result;
-                        return JsonConvert.DeserializeObject<ResponseObject>(json);
+                        return JsonConvert.DeserializeObject<TokenResponseObject>(json);
                     });
                 }).Unwrap();
         }
 
-        public Task<ResponseObject> ChargeAsync(ChargeObject chargeObject)
+        public Task<ChargeResponseObject> ChargeAsync(ChargeObject chargeObject)
         {
             const string endpoint = "v2/charge";
             UriBuilder uriBuilder = new UriBuilder(BASE_URI);
             uriBuilder.Path = endpoint;
 
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(chargeObject), Encoding.UTF8, "application/json");
+            string chargeObjectJson = JsonConvert.SerializeObject(chargeObject);
+            HttpContent content = new StringContent(chargeObjectJson, Encoding.UTF8, "application/json");
             return this.http.PostAsync(uriBuilder.Uri, content)
             .ContinueWith(responseTask =>
             {
@@ -70,7 +71,26 @@ namespace Com.KiddoPay.Payment.Provider.Midtrans
                 return response.Content.ReadAsStringAsync().ContinueWith(readTask =>
                 {
                     var json = readTask.Result;
-                    return JsonConvert.DeserializeObject<ResponseObject>(json);
+                    return JsonConvert.DeserializeObject<ChargeResponseObject>(json);
+                });
+            }).Unwrap();
+        }
+
+        public Task<ChargeResponseObject> ApproveAsync(string orderOrTransactionId)
+        {
+            const string endpoint = "v2/{0}/approve"; ;
+            UriBuilder uriBuilder = new UriBuilder(BASE_URI);
+            uriBuilder.Path = string.Format(endpoint, orderOrTransactionId);
+
+            HttpContent content = new StringContent("{}", Encoding.UTF8, "application/json");
+            return this.http.PostAsync(uriBuilder.Uri, content)
+            .ContinueWith(responseTask =>
+            {
+                var response = responseTask.Result;
+                return response.Content.ReadAsStringAsync().ContinueWith(readTask =>
+                {
+                    var json = readTask.Result;
+                    return JsonConvert.DeserializeObject<ChargeResponseObject>(json);
                 });
             }).Unwrap();
         }
